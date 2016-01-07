@@ -47,11 +47,11 @@ The type is taking am url or url part and matches against match option
 - `url`: valid url __http:// example.com /my/path ?param=value__
 - `cli`: valid cli environment
 
-#### `match`
+##### `match`
 
 Valid regex matched against value received from type. Defualt is `.+`
 
-#### `priority`
+##### `priority`
 
 Set order for node stack. 
 
@@ -59,35 +59,33 @@ Set order for node stack.
 - `last` at the end of stack
 - `0 ... n` declare postion to valid unsigned number.
 
-#### `description` *(optional)*
+##### `description` *(optional)*
 
 Short description for node
 
-#### `config`
+##### `config`
 
 Defines path to documentation. You could also access following parameters with `{{param}}`
 
-##### Available params
+###### Available params
 
 - `node_id` of current node
 - `environment` of current node
+
+#### Synopsis
 
 ```json
 {
   "<environment>": {
     "nodes": {
       "<node_id>": {
-        "type": "<url_path, url_host, url_query, all>",
-        "match": "<regex>",
-        "priority": "<first, any number, last",
-        "description": "",
-        "config": "<root_path>/<node_id>/<environment>"
+        "type": "<url_path, url_host, url_query, url, cli>",
+        "match": "<regex, not for cli>",
+        "priority": "<first, 0 ... n, last>",
+        "description": "<some text>",
+        "config": "path/to/config/file.php"
       }
     }
   }
 }
 ```
-
-Example with multiple nodes and environments
-
-### 
