@@ -1,103 +1,91 @@
-# Blast config
+# turbine-cms
+Powerfull cms
 
-[![Latest Version on Packagist][ico-version]][link-packagist]
-[![Software License][ico-license]](LICENSE.md)
-[![Build Status][ico-travis]][link-travis]
-[![Total Downloads][ico-downloads]][link-downloads]
-[![Coverage Status](https://img.shields.io/coveralls/phpthinktank/blast-config/master.svg?style=flat-square)](https://coveralls.io/github/phpthinktank/blast-config?branch=1.0.x-dev)
+## Configuration
 
-Framework agnostic configuration package supporting php and json. More file types under development.
+### Nodes
 
-## Install
+Nodes are the heart of Turbine CMS. Nodes are necessary to provide multi-domain-support and also environment control. Within each node you could define a specific config location.
 
-Via Composer
+#### Defaults
 
-``` bash
-$ composer require blast/config
+The default node is defined within `/app/res/config/nodes.json` and is defined as follows.
+
+```json
+{
+  "default": {
+    "nodes": {
+      "default": {
+        "type": "url",
+        "match": ".+",
+        "priority": "last",
+        "description": "Is valid for every given domain and path and act as wildcard. This will load at the end when nothing has been matched",
+        "config": "{{root_path}}/{{node_id}}/{{environment}}"
+      }
+    }
+  }
+}
 ```
 
-## Usage
+#### Options
 
-Only a few lines of code:
+##### `environment`
 
+Target environment received via getenv and defined in .env in projectroot. Turbine CMS is using [phpdotenv by vlucas](https://github.com/vlucas/phpdotenv). If no environment defined, the environment is defined as `default`. Defined environment inherit `default` environment.
+
+##### `node_id`
+
+Unique node identifier. Nodes inherit values from defined node with same `node_id` of `default`environment.
+
+##### `type`
+
+The type is taking am url or url part and matches against match option
+
+- `url_path`: valid url path http:// example.com __/my/path__ ?param=value
+- `url_host`: valid url host __http:// example.com__ /my/path ?param=value
+- `url_query`: valid url query http:// example.com /my/path ? __param=value__
+- `url`: valid url __http:// example.com /my/path ?param=value__
+- `cli`: valid cli environment
+
+##### `match`
+
+Valid regex matched against value received from type. Defualt is `.+`
+
+##### `priority`
+
+Set order for node stack. 
+
+- `first` is set node on top of stack
+- `last` at the end of stack
+- `0 ... n` declare postion to valid unsigned number.
+
+##### `description` *(optional)*
+
+Short description for node
+
+##### `config`
+
+Defines path to documentation. You could also access following parameters with `{{param}}`
+
+###### Available params
+
+- `node_id` of current node
+- `environment` of current node
+
+#### Synopsis
+
+```json
+{
+  "<environment>": {
+    "nodes": {
+      "<node_id>": {
+        "type": "<url_path, url_host, url_query, url, cli>",
+        "match": "<regex, not for cli>",
+        "priority": "<first, 0 ... n, last>",
+        "description": "<some text>",
+        "config": "path/to/config/file.php"
+      }
+    }
+  }
+}
 ```
-<?php
-
-$factory = new Factory();
-
-// define your base location for all configurations
-$locator = $factory->create(__DIR__ . '/res');
-
-// receive config from json as array
-$config = $factory->load('/config/config.json', $locator);
-
-// receive config as array
-$config = $factory->load('/config/config.php', $locator);
-```
-
-### Dependency injection
-
-Configure ServiceProvider and Facade.
-
-```
-<?php
-
-$container = new Container();
-$container->addServiceProvider(new ConfigServiceProvider());
-FacadeFactory::setContainer($container);
-```
-
-Load your configuration.
-
-```
-<?php
-
-// define your base location for all configurations
-Config::create(__DIR__ . '/res');
-
-// receive config from json as array
-$config = Config::load('/config/config.json', $locator);
-
-```
-
-## Further development
-
-Please visit our [milestones](https://github.com/phpthinktank/blast-config/milestones)
-
-## Change log
-
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
-
-## Testing
-
-``` bash
-$ composer test
-```
-
-## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
-
-## Security
-
-If you discover any security related issues, please email :author_email instead of using the issue tracker.
-
-## Credits
-
-- [Marco Bunge][link-author]
-- [All contributors][link-contributors]
-
-## License
-
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
-
-[ico-version]: https://img.shields.io/packagist/v/blast/config.svg?style=flat-square
-[ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
-[ico-travis]: https://img.shields.io/travis/phpthinktank/blast-config/master.svg?style=flat-square
-[ico-downloads]: https://img.shields.io/packagist/dt/blast/config.svg?style=flat-square
-
-[link-packagist]: https://packagist.org/packages/blast/config
-[link-travis]: https://travis-ci.org/phpthinktank/blast-config
-[link-downloads]: https://packagist.org/packages/blast/config
-[link-author]: https://github.com/mbunge
-[link-contributors]: ../../contributors
