@@ -13,7 +13,9 @@
 namespace Turbine;
 
 
-class Application
+use Blast\Application\Kernel\Foundation;
+
+class Application extends Foundation
 {
 
 }
