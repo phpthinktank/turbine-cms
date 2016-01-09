@@ -1,0 +1,20 @@
+{
+  "default": {
+    "nodes": {
+      "web": {
+        "type": "url",
+        "match": ".+",
+        "priority": "last",
+        "description": "Default node HTTP-Application",
+        "config": "{{root_path}}/{{environment}}/{{node_id}}.json"
+      },
+      "cli": {
+        "type": "cli",
+        "match": ".+",
+        "priority": "last",
+        "description": "Default node for CLI-Application",
+        "config": "{{root_path}}/{{environment}}/{{node_id}}.json"
+      }
+    }
+  }
+}
