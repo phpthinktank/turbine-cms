@@ -15,11 +15,23 @@ namespace Turbine\Application\Strategy;
 
 use Blast\Application\Kernel\KernelInterface;
 use Blast\Application\Strategy\StrategyInterface;
+use Interop\Container\ContainerInterface;
+use League\Container\Container;
+use League\Route\RouteCollection;
+use League\Route\RouteCollectionInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 class MvcStrategy implements StrategyInterface
 {
+
+    protected function setupDependencies(KernelInterface $kernel){
+        $container = $kernel->getContainer();
+
+        if(!$container->has(RouteCollectionInterface::class)){
+            $container->add(RouteCollectionInterface::class, RouteCollection::class);
+        }
+    }
 
     /**
      * @param KernelInterface $kernel
@@ -29,6 +41,17 @@ class MvcStrategy implements StrategyInterface
      */
     public function dispatch(KernelInterface $kernel, RequestInterface $request, ResponseInterface $response)
     {
-        // TODO: Implement dispatch() method.
+        $this->setupDependencies($kernel);
+        $this->setupRoutes($kernel);
+
+
+    }
+
+    protected function setupRoutes(KernelInterface $kernel)
+    {
+        $router = $kernel->getContainer()->get(RouteCollectionInterface::class);
+        if($router instanceof RouteCollectionInterface){
+            //map config['routes']
+        }
     }
 }

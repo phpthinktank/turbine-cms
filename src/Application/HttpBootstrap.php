@@ -13,6 +13,8 @@
 namespace Turbine\Application;
 
 use Dotenv\Dotenv;
+use League\Container\Container;
+use Psr\Log\LoggerInterface;
 use Turbine\Resources;
 use Interop\Container\ContainerInterface;
 use Monolog\Handler\StreamHandler;
@@ -88,8 +90,8 @@ class HttpBootstrap implements BootstrapInterface
             ->initErrorHandler()
             ->initEnvironment()
             ->initHttp()
-            ->initConfig();
-
+            ->initConfig()
+            ->initServices();
     }
 
     /**
@@ -344,6 +346,41 @@ class HttpBootstrap implements BootstrapInterface
             ->setStrategy(new Application\Strategy\MvcStrategy());
 
         return $application;
+    }
+
+    protected function initServices()
+    {
+        $container = $this->getContainer();
+        $config = $this->getConfig();
+
+        if ($container instanceof Container) {
+            $container->add(BootstrapInterface::class, $this);
+            $container->add(Resources::class, $this->getResources());
+            $container->add(LoggerInterface::class, $this->getLogger());
+
+            if (isset($config['services'])) {
+                $services = $config['services'];
+
+                if (is_array($services)) {
+                    foreach ($services as $alias => $service) {
+                        $container->add($alias, $service);
+                    }
+                }
+            }
+
+            if (isset($config['providers'])) {
+                $providers = $config['providers'];
+
+                if (is_array($providers)) {
+                    foreach ($providers as $provider) {
+                        $container->addServiceProvider($provider);
+                    }
+                }
+            }
+
+        } else {
+            throw new \Exception('container ' . get_class($container) . ' is not supported!');
+        }
     }
 
 }
