@@ -130,11 +130,83 @@ abstract class AbstractInitiator implements InitiatorInterface
      * @param $nodeFile
      * @return AbstractInitiator
      */
-    public function init($nodeFile){
+    public function init($nodeFile)
+    {
         $nodes = $this->getFactory()->load($nodeFile, $this->getLocator());
-        $this->setNodes($nodes);
+        $this->setNodes($this->sortNodes($nodes));
+
 
         return $this;
+    }
+
+    protected function sortNodes($nodes)
+    {
+        $lowest = 0;
+        $highest = 0;
+
+        //get lowest and highest integer
+        foreach ($nodes as $node) {
+            print_r($node);
+            if (!isset($node['priority'])) {
+                continue;
+            }
+            $priority = $node['priority'];
+            if (!is_numeric($priority)) {
+                continue;
+            }
+
+            $priority = intval($priority);
+
+            if($priority > $highest){
+                $highest = $priority;
+            }
+
+            if($priority < $lowest){
+                $lowest = $priority;
+            }
+        }
+
+        //get average integer for invalid priority
+        $average = ($lowest + $highest) / 2;
+
+        print_r($average);
+        print_r($lowest);
+        print_r($highest);
+
+        //determine priority from node
+        $getPriority = function($node) use ($average, $lowest, $highest){
+            if (!isset($node['priority'])) {
+                return $average;
+            }
+
+            $priority = $node['priority'];
+
+            switch ($priority) {
+                case "first":
+                    $priority = $lowest;
+                    break;
+                case "last":
+                    $priority = $highest;
+                    break;
+            }
+
+            if (!is_numeric($priority)) {
+                return $average;
+            }
+
+            return intval($priority);
+        };
+
+        //sort nodes
+        usort($nodes, function ($a, $b) use ($getPriority, $average, $lowest, $highest) {
+
+            $priorityA = $getPriority($a);
+            $priorityB = $getPriority($b);
+
+            return ($priorityA < $priorityB) ? 1 : -1;
+        });
+
+        return $nodes;
     }
 
     abstract function execute();

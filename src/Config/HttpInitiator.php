@@ -48,6 +48,8 @@ class HttpInitiator extends AbstractInitiator
         $nodes = $this->getNodes();
         $requets = $this->getRequest();
 
+        print_r($nodes);
+
         return $nodes;
     }
 
