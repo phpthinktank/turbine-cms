@@ -51,11 +51,7 @@ class HttpInitiator extends AbstractInitiator
         $request = $this->getRequest();
         $uri = $request->getUri();
 
-
         list($nodeId, $node) = $this->fetchNode($nodes, $uri);
-        $config = [];
-
-        //@todo fetch config from node
 
         if (!isset($node['config'])) {
             $node['config'] = '/{{environment}}/{{node_id}}.json';
