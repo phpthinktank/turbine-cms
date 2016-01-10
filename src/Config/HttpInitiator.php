@@ -45,7 +45,7 @@ class HttpInitiator extends AbstractInitiator
      * Load nodes
      * @return array
      */
-    public function execute()
+    public function create()
     {
         $nodes = $this->getNodes();
         $request = $this->getRequest();

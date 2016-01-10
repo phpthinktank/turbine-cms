@@ -13,34 +13,28 @@
 namespace Turbine\Config;
 
 
+use Application\HttpBootstrap;
 use Blast\Config\Factory;
 use Blast\Config\Locator;
-use Psr\Http\Message\ServerRequestInterface;
+use Turbine\Resources;
 
 interface InitiatorInterface
 {
 
-    const ENVIRONMENT = 'default';
-
     /**
      * AbstractInitiator constructor.
-     * @param Factory $factory
-     * @param Locator $locator
+     * @param string $nodeFile
+     * @param string $environment
+     * @param Resources $resource
+     * @throws EnvironmentNotFoundException
      */
-    public function __construct(Factory $factory, Locator $locator);
+    public function __construct($nodeFile, $environment, Resources $resource);
 
     /**
      * Get node data from node file
      *
-     * @param $nodeFile
-     * @return AbstractInitiator
-     */
-    public function init($nodeFile);
-
-    /**
-     * Load nodes
      * @return array
      */
-    public function execute();
+    public function create();
 
 }

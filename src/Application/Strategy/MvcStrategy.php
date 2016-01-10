@@ -10,7 +10,7 @@
 * Time: 18:27
 */
 
-namespace Turbine\Application;
+namespace Turbine\Application\Strategy;
 
 
 use Blast\Application\Kernel\KernelInterface;

@@ -13,8 +13,10 @@
 namespace Turbine\Config;
 
 
+use Application\HttpBootstrap;
 use Blast\Config\Factory;
 use Blast\Config\Locator;
+use Turbine\Resources;
 
 abstract class AbstractInitiator implements InitiatorInterface
 {
@@ -35,35 +37,34 @@ abstract class AbstractInitiator implements InitiatorInterface
     private $locator;
 
     /**
-     * @var string
+     * @var $bootstrap
      */
-    private $environment = self::ENVIRONMENT;
+    private $environment;
 
     /**
      * AbstractInitiator constructor.
-     * @param Factory $factory
-     * @param Locator $locator
-     */
-    public function __construct(Factory $factory, Locator $locator)
-    {
-        $this->setFactory($factory);
-        $this->setLocator($locator);
-    }
-
-    /**
-     * @return string
-     */
-    public function getEnvironment()
-    {
-        return $this->environment;
-    }
-
-    /**
+     * @param string $nodeFile
      * @param string $environment
+     * @param Resources $resource
+     * @throws EnvironmentNotFoundException
      */
-    public function setEnvironment($environment)
+    public function __construct($nodeFile, $environment, Resources $resource)
     {
-        $this->environment = $environment;
+
+        $this->setFactory($resource->getFactory());
+        $this->setLocator($resource->getLocator());
+        $this->setEnvironment($environment);
+
+        //set environment to load config
+
+        $nodes = $this->getFactory()->load($nodeFile, $this->getLocator());
+
+        if (!isset($nodes[ $environment ])) {
+            throw new EnvironmentNotFoundException($environment);
+        }
+
+        $this->setNodes($this->sortNodes($nodes[ $environment ]));
+
     }
 
     /**
@@ -104,7 +105,6 @@ abstract class AbstractInitiator implements InitiatorInterface
         return $this;
     }
 
-
     /**
      * @return array
      */
@@ -125,38 +125,22 @@ abstract class AbstractInitiator implements InitiatorInterface
     }
 
     /**
-     * Get node data from node file
-     *
-     * @param $nodeFile
-     * @return AbstractInitiator
-     * @throws EnvironmentNotFoundException
+     * @return mixed
      */
-    public function init($nodeFile)
+    public function getEnvironment()
     {
-        //set environment to load config
-        $this->setEnvironment($this->determineEnvironment());
-        $environment = $this->getEnvironment();
-
-        $nodes = $this->getFactory()->load($nodeFile, $this->getLocator());
-
-        if (!isset($nodes[ $environment ])) {
-            throw new EnvironmentNotFoundException($environment);
-        }
-
-        $this->setNodes($this->sortNodes($nodes[ $environment ]));
-
-        return $this;
+        return $this->environment;
     }
 
     /**
-     * Determine environment from getenv. If no Environment is available set default environment
-     * @return string
+     * @param mixed $environment
+     * @return AbstractInitiator
      */
-    protected function determineEnvironment()
+    public function setEnvironment($environment)
     {
-        $environment = getenv('TURBINE_ENVIRONMENT');
+        $this->environment = $environment;
 
-        return (!$environment) ? $this->getEnvironment() : $environment;
+        return $this;
     }
 
     protected function sortNodes($nodes)
@@ -226,6 +210,6 @@ abstract class AbstractInitiator implements InitiatorInterface
         return $nodes;
     }
 
-    abstract function execute();
+    abstract function create();
 
 }

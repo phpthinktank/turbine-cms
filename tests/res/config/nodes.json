@@ -5,14 +5,14 @@
       "pattern": ".+",
       "priority": "last",
       "description": "Default node HTTP-Application",
-      "config": "/{{environment}}/{{node_id}}.json"
+      "config": "/config/{{environment}}/{{node_id}}.json"
     },
     "cli": {
       "type": "cli",
       "pattern": ".+",
       "priority": "last",
       "description": "Default node for CLI-Application",
-      "config": "/{{environment}}/{{node_id}}.json"
+      "config": "/config/{{environment}}/{{node_id}}.json"
     }
   }
 }

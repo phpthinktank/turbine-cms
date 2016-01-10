@@ -1,20 +1,18 @@
 {
   "default": {
-    "nodes": {
-      "web": {
-        "type": "url",
-        "match": ".+",
-        "priority": "last",
-        "description": "Default node HTTP-Application",
-        "config": "{{root_path}}/{{environment}}/{{node_id}}.json"
-      },
-      "cli": {
-        "type": "cli",
-        "match": ".+",
-        "priority": "last",
-        "description": "Default node for CLI-Application",
-        "config": "{{root_path}}/{{environment}}/{{node_id}}.json"
-      }
+    "http": {
+      "type": "url",
+      "pattern": ".+",
+      "priority": "last",
+      "description": "Default node HTTP-Application",
+      "config": "/config/{{environment}}/{{node_id}}.json"
+    },
+    "cli": {
+      "type": "cli",
+      "pattern": ".+",
+      "priority": "last",
+      "description": "Default node for CLI-Application",
+      "config": "/config/{{environment}}/{{node_id}}.json"
     }
   }
 }
