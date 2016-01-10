@@ -10,10 +10,8 @@
 * Time: 15:24
 */
 
-namespace Application;
+namespace Turbine\Application;
 
-
-use Blast\Application\Kernel\Foundation;
 use Dotenv\Dotenv;
 use Turbine\Resources;
 use Interop\Container\ContainerInterface;
@@ -109,6 +107,8 @@ class HttpBootstrap implements BootstrapInterface
         }
 
         $this->setRootPath($rootPath);
+
+        return $this;
     }
 
     /**
@@ -152,6 +152,8 @@ class HttpBootstrap implements BootstrapInterface
 
         $environment = getenv('TURBINE_ENVIRONMENT');
         $this->setEnvironment(!$environment ? $this->getEnvironment() : $environment);
+
+        return $this;
     }
 
     /**
@@ -163,6 +165,8 @@ class HttpBootstrap implements BootstrapInterface
         $this
             ->setRequest($psr7Factory->createRequest(Request::createFromGlobals()))
             ->setResponse($psr7Factory->createResponse(new Response()));
+
+        return $this;
     }
 
     /**
@@ -170,10 +174,12 @@ class HttpBootstrap implements BootstrapInterface
      */
     protected function initConfig()
     {
-        $initiator = new HttpInitiator('nodes.json', $this->getEnvironment(), $this->getResources());
+        $initiator = new HttpInitiator('/config/nodes.json', $this->getEnvironment(), $this->getResources());
         $initiator->setRequest($this->getRequest());
 
         $this->setConfig($initiator->create());
+
+        return $this;
     }
 
     /**

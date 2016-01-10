@@ -10,7 +10,7 @@
 * Time: 15:33
 */
 
-namespace Application;
+namespace Turbine\Application;
 
 
 interface BootstrapInterface

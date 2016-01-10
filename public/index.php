@@ -10,15 +10,14 @@
 * Time: 14:23
 */
 
-use Blast\Application\Kernel\Foundation as Application;
-use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Turbine\Application\HttpBootstrap as Bootstrap;
+
+require_once __DIR__ . '/../vendor/autoload.php';
 
 #ini_set('display_errors', 1);
 
 $rooPath = realpath(__DIR__ . '/..');
-$bootstrap = new \Application\HttpBootstrap(
+$bootstrap = new Bootstrap(
     $rooPath,
     new \Turbine\Resources($rooPath . '/res'),
     new \League\Container\Container()
