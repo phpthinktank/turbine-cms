@@ -13,7 +13,9 @@
 namespace Turbine\Config;
 
 
+use League\Route\Http\Exception;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 
 class HttpInitiator extends AbstractInitiator
 {
@@ -21,7 +23,7 @@ class HttpInitiator extends AbstractInitiator
     /**
      * @var ServerRequestInterface
      */
-    private $request = null;
+    private $request = NULL;
 
     /**
      * @return ServerRequestInterface
@@ -46,11 +48,88 @@ class HttpInitiator extends AbstractInitiator
     public function execute()
     {
         $nodes = $this->getNodes();
-        $requets = $this->getRequest();
+        $request = $this->getRequest();
+        $uri = $request->getUri();
 
-        print_r($nodes);
 
-        return $nodes;
+        list($nodeId, $node) = $this->fetchNode($nodes, $uri);
+        $config = [];
+
+        //@todo fetch config from node
+
+        if (!isset($node['config'])) {
+            $node['config'] = '/{{environment}}/{{node_id}}.json';
+        }
+
+        $configPath = str_replace([
+            '{{environment}}',
+            '{{node_id}}'
+        ], [
+            $this->getEnvironment(),
+            $nodeId
+        ], $node['config']);
+
+        return $this->getFactory()->load($configPath, $this->getLocator());
+
+    }
+
+    /**
+     * @param $nodes
+     * @param $uri
+     * @return mixed
+     * @throws UnableToDetermineNodesException
+     * @throws UnknownNodeTypeException
+     */
+    protected function fetchNode(array $nodes, UriInterface $uri)
+    {
+        foreach ($nodes as $nodeId => $node) {
+            if (!isset($node['type']) || !isset($node['pattern'])) {
+                continue;
+            }
+            if (strpos($node['type'], 'url') !== 0) {
+                continue;
+            }
+            if (strpos($uri->getScheme(), 'http') !== 0) {
+                continue;
+            }
+
+            $type = $node['type'];
+            $pattern = $node['pattern'];
+            $subject = NULL;
+
+            //check if https is required
+            if (isset($node['secure'])) {
+                if ($node['secure'] && strpos($uri->getScheme(), 'https') !== 0) {
+                    continue;
+                }
+            }
+
+            //determine url part by type
+            switch ($type) {
+                case "url":
+                    $subject = $uri;
+                    break;
+                case "url_path":
+                    $subject = $uri->getPath();
+                    break;
+
+                case "url_host":
+                    $subject = $uri->getHost();
+                    break;
+
+                case "url_query":
+                    $subject = $uri->getQuery();
+                    break;
+                default:
+                    throw new UnknownNodeTypeException($type);
+            }
+
+            if (preg_match_all('#' . $pattern . '#i', $subject)) {
+                return [$nodeId, $node];
+            }
+        }
+
+        throw new UnableToDetermineNodesException();
     }
 
 }

@@ -32,6 +32,9 @@ class InitiatorTest extends \PHPUnit_Framework_TestCase
         $initiator->init('/nodes.json');
         $initiator->setRequest($request);
         $data = $initiator->execute();
+
+        $this->assertInternalType('array', $data);
+        $this->assertArrayHasKey('name', $data);
     }
 
 

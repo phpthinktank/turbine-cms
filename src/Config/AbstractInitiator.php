@@ -129,14 +129,34 @@ abstract class AbstractInitiator implements InitiatorInterface
      *
      * @param $nodeFile
      * @return AbstractInitiator
+     * @throws EnvironmentNotFoundException
      */
     public function init($nodeFile)
     {
-        $nodes = $this->getFactory()->load($nodeFile, $this->getLocator());
-        $this->setNodes($this->sortNodes($nodes));
+        //set environment to load config
+        $this->setEnvironment($this->determineEnvironment());
+        $environment = $this->getEnvironment();
 
+        $nodes = $this->getFactory()->load($nodeFile, $this->getLocator());
+
+        if (!isset($nodes[ $environment ])) {
+            throw new EnvironmentNotFoundException($environment);
+        }
+
+        $this->setNodes($this->sortNodes($nodes[ $environment ]));
 
         return $this;
+    }
+
+    /**
+     * Determine environment from getenv. If no Environment is available set default environment
+     * @return string
+     */
+    protected function determineEnvironment()
+    {
+        $environment = getenv('TURBINE_ENVIRONMENT');
+
+        return (!$environment) ? $this->getEnvironment() : $environment;
     }
 
     protected function sortNodes($nodes)
@@ -146,7 +166,6 @@ abstract class AbstractInitiator implements InitiatorInterface
 
         //get lowest and highest integer
         foreach ($nodes as $node) {
-            print_r($node);
             if (!isset($node['priority'])) {
                 continue;
             }
@@ -157,24 +176,22 @@ abstract class AbstractInitiator implements InitiatorInterface
 
             $priority = intval($priority);
 
-            if($priority > $highest){
+            if ($priority > $highest) {
                 $highest = $priority;
             }
 
-            if($priority < $lowest){
+            if ($priority < $lowest) {
                 $lowest = $priority;
             }
         }
 
         //get average integer for invalid priority
         $average = ($lowest + $highest) / 2;
-
-        print_r($average);
-        print_r($lowest);
-        print_r($highest);
+        $highest++;
+        $lowest--;
 
         //determine priority from node
-        $getPriority = function($node) use ($average, $lowest, $highest){
+        $getPriority = function ($node) use ($average, $lowest, $highest) {
             if (!isset($node['priority'])) {
                 return $average;
             }
@@ -198,12 +215,12 @@ abstract class AbstractInitiator implements InitiatorInterface
         };
 
         //sort nodes
-        usort($nodes, function ($a, $b) use ($getPriority, $average, $lowest, $highest) {
+        uasort($nodes, function ($a, $b) use ($getPriority, $average, $lowest, $highest) {
 
             $priorityA = $getPriority($a);
             $priorityB = $getPriority($b);
 
-            return ($priorityA < $priorityB) ? 1 : -1;
+            return ($priorityA > $priorityB) ? 1 : -1;
         });
 
         return $nodes;
