@@ -10,12 +10,12 @@
 * Time: 14:25
 */
 
-namespace Turbine;
+namespace Turbine\Application\Http;
 
 
-use Blast\Application\Kernel\Foundation;
+use Blast\Application\Kernel\Foundation as Kernel;
 
-class Application extends Foundation
+class Foundation extends Kernel
 {
 
 }

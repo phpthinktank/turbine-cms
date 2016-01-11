@@ -10,14 +10,15 @@
 * Time: 16:02
 */
 
-namespace Turbine\Config;
+namespace Turbine\Config\Http;
 
 
 use League\Route\Http\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
+use Turbine\Config\AbstractInitiator;
 
-class HttpInitiator extends AbstractInitiator
+class Initiator extends AbstractInitiator
 {
 
     /**

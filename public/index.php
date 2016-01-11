@@ -10,7 +10,8 @@
 * Time: 14:23
 */
 
-use Turbine\Application\HttpBootstrap as Bootstrap;
+use Turbine\Application\Http\Bootstrap as Bootstrap;
+use Turbine\Application\Http\Foundation as Application;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -18,13 +19,10 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 $rooPath = realpath(__DIR__ . '/..');
 $bootstrap = new Bootstrap(
-    $rooPath,
-    new \Turbine\Resources($rooPath . '/res'),
-    new \League\Container\Container()
+    $rooPath, new \League\Container\Container(), new \Turbine\Resources($rooPath . '/res')
 );
 $bootstrap
-    ->createApplication(new \Turbine\Application())
-    ->setStrategy(new \Turbine\Application\Strategy\MvcStrategy())
+    ->createApplication(new Application)
     ->dispatch($bootstrap->getRequest(), $bootstrap->getResponse());
 
 
