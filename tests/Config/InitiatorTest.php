@@ -14,7 +14,7 @@ namespace Turbine\Tests\Config;
 
 use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
 use Symfony\Component\HttpFoundation\Request;
-use Turbine\Config\HttpInitiator as Initiator;
+use Turbine\Config\Http\Initiator as HttpInitiator;
 use Turbine\Resources;
 
 class InitiatorTest extends \PHPUnit_Framework_TestCase
@@ -25,7 +25,7 @@ class InitiatorTest extends \PHPUnit_Framework_TestCase
         $psr7Factory = new DiactorosFactory();
         $request = $psr7Factory->createRequest(Request::create('http://turbine.dev/test-node/?query-param=val'));
         $resources = new Resources(__DIR__ . '/../res');
-        $initiator = new Initiator('/config/nodes.json', 'default', $resources);
+        $initiator = new HttpInitiator('/config/nodes.json', 'default', $resources);
         $initiator->setRequest($request);
         $data = $initiator->create();
 
