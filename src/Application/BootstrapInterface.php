@@ -41,4 +41,9 @@ interface BootstrapInterface
      */
     public function getRootPath();
 
+    /**
+     * @return mixed
+     */
+    public function boot();
+
 }

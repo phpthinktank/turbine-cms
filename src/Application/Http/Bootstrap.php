@@ -12,13 +12,12 @@
 
 namespace Turbine\Application\Http;
 
-use Blast\Application\Kernel\KernelInterface;
-use Composer\Autoload\ClassLoader;
 use League\Container\Container;
 use Psr\Log\LoggerInterface;
 use Turbine\Application\AbstractBootstrap;
 use Turbine\Application\BootstrapInterface;
-use Turbine\Application\Strategy\MvcStrategy;
+use Turbine\Application\Event\ConfigureEvent;
+use Turbine\Application\Events\BootConfigEvent;
 use Turbine\Resources;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -48,20 +47,13 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
 
 
     /**
-     * Bootstrap constructor.
-     * @param $rootPath
-     * @param Container $container
-     * @param Resources $resources
+     * Init bootstrap with bootlet
+     * @param Bootlet $bootlet
      */
-    public function __construct($rootPath, Container $container, ClassLoader $autoloader, Resources $resources)
+    public function __construct(Bootlet $bootlet)
     {
-        parent::__construct($rootPath, $container, $autoloader);
-
-        $this
-            ->setResources($resources)
-            ->initHttp()
-            ->initConfig()
-            ->initServices();
+        parent::__construct($bootlet);
+        $this->setResources($bootlet->getResources());
     }
 
     /**
@@ -82,7 +74,11 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
      */
     protected function initConfig()
     {
-        $initiator = new Initiator('/config/nodes.json', $this->getEnvironment(), $this->getResources());
+        $event = new BootConfigEvent();
+        $event->setNodeFile('/config/nodes.json');
+        $this->getEmitter()->emit($event);
+
+        $initiator = new Initiator($event->getNodeFile(), $this->getEnvironment(), $this->getResources());
         $initiator->setRequest($this->getRequest());
 
         $this->setConfig($initiator->create());
@@ -169,22 +165,6 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
         return $this->getContainer()->add($alias, $concrete, $share);
     }
 
-    /**
-     * @param Application $application
-     * @return Application
-     */
-    public function createApplication(Application $application)
-    {
-        $application
-            ->setContainer($this->getContainer())
-            ->setConfig($this->getConfig())
-            ->setStrategy(new MvcStrategy());
-
-        $this->addService(KernelInterface::class, $application);
-
-        return $application;
-    }
-
     protected function initServices()
     {
         $container = $this->getContainer();
@@ -193,16 +173,6 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
         $this->addService(BootstrapInterface::class, $this);
         $this->addService(Resources::class, $this->getResources());
         $this->addService(LoggerInterface::class, $this->getLogger());
-
-        if (isset($config['services'])) {
-            $services = $config['services'];
-
-            if (is_array($services)) {
-                foreach ($services as $alias => $service) {
-                    $container->add($alias, $service);
-                }
-            }
-        }
 
         if (isset($config['providers'])) {
             $providers = $config['providers'];
@@ -214,6 +184,63 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
             }
         }
 
+        if (isset($config['services'])) {
+            $services = $config['services'];
+
+            if (is_array($services)) {
+                foreach ($services as $alias => $service) {
+                    $container->add($alias, $service);
+                }
+            }
+        }
+
+        return $this;
+
+    }
+
+    protected function configure()
+    {
+        $config = $this->getConfig();
+        $event = new ConfigureEvent();
+        $event->setConfig($config);
+        $this->getEmitter()->emit($event);
+
+        $this->setConfig($event->getConfig());
+
+        return $this;
+    }
+
+    public function boot()
+    {
+        parent::boot();
+
+        $this
+            ->initHttp()
+            ->initConfig()
+            ->initServices()
+            ->configure();
+
+        return new Factory($this);
+    }
+
+    /**
+     * Convenient boot loader
+     * @param $rootPath
+     */
+    public static function create($rootPath, Foundation $application = null, Bootlet $bootlet = null)
+    {
+        $rootPath = realpath($rootPath);
+        $loader = require_once $rootPath . '/vendor/autoload.php';
+        $bootstrap = new Bootstrap(
+            $bootlet !== null ?
+                $bootlet :
+                (new Bootlet())
+                    ->setRootPath($rootPath)
+                    ->setResources(new Resources($rootPath . '/res'))
+                    ->setLoader($loader));
+        $bootstrap->boot()
+            ->createApplication($application !== null ? $application : new Application)
+            ->dispatch($bootstrap->getRequest(), $bootstrap->getResponse());
     }
 
 }

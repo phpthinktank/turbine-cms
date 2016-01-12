@@ -13,11 +13,13 @@ use Blast\Facades\FacadeFactory;
 use Composer\Autoload\ClassLoader;
 use Dotenv\Dotenv;
 use Interop\Container\ContainerInterface;
+use League\Event\Emitter;
+use League\Event\EmitterInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Turbine\Application\Http\Bootstrap;
-use Turbine\Container\AwareTrait as ContainerAwareTrait;
+use Turbine\Container\ContainerAwareTrait as ContainerAwareTrait;
 use Turbine\Container\StaticAwareTrait as StaticContainerAwareTrait;
 use Turbine\Config\AwareTrait as ConfigAwareTrait;
 use Turbine\Logger\AwareTrait as LoggerAwareTrait;
@@ -43,14 +45,30 @@ abstract class AbstractBootstrap implements BootstrapInterface
     private $rootPath;
 
     /**
+     * @var EmitterInterface
+     */
+    private $emitter;
+
+    /**
+     * @var ClassLoader
+     */
+    private $loader;
+
+    /**
      * @var string
      */
     private $environment = self::ENVIRONMENT;
 
-    public function __construct($rootPath, ContainerInterface $container, ClassLoader $autoloader)
+    public function __construct(AbstractBootlet $bootlet)
     {
-        $this->setup($rootPath)
-            ->setContainer($container)
+        $this->setup($bootlet->getRootPath())
+            ->setContainer($bootlet->getContainer())
+            ->setEmitter($bootlet->getEmitter());
+    }
+
+    public function boot()
+    {
+        $this
             ->initContainer()
             ->initLogger()
             ->initErrorHandler()
@@ -139,6 +157,24 @@ abstract class AbstractBootstrap implements BootstrapInterface
     }
 
     /**
+     * @return EmitterInterface
+     */
+    public function getEmitter()
+    {
+        return $this->emitter;
+    }
+
+    /**
+     * @param EmitterInterface $emitter
+     * @return AbstractBootstrap
+     */
+    public function setEmitter($emitter)
+    {
+        $this->emitter = $emitter;
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getEnvironment()
@@ -158,9 +194,26 @@ abstract class AbstractBootstrap implements BootstrapInterface
     }
 
     /**
+     * @return ClassLoader
+     */
+    public function getLoader()
+    {
+        return $this->loader;
+    }
+
+    /**
+     * @param ClassLoader $loader
+     */
+    public function setLoader($loader)
+    {
+        $this->loader = $loader;
+    }
+
+    /**
      * @return LoggerInterface|Logger
      */
-    public function getLogger(){
+    public function getLogger()
+    {
         return $this->getPsrLogger();
     }
 

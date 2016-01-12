@@ -16,7 +16,7 @@ namespace Turbine\Container;
 
 use Interop\Container\ContainerInterface;
 
-trait AwareTrait
+trait ContainerAwareTrait
 {
 
     /**
