@@ -226,6 +226,8 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
     /**
      * Convenient boot loader
      * @param $rootPath
+     * @param Foundation $application
+     * @param Bootlet $bootlet
      */
     public static function create($rootPath, Foundation $application = null, Bootlet $bootlet = null)
     {
