@@ -9,12 +9,18 @@
 namespace Turbine\Application;
 
 
+use Blast\Facades\FacadeFactory;
+use Composer\Autoload\ClassLoader;
 use Dotenv\Dotenv;
 use Interop\Container\ContainerInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Turbine\Application\Http\Bootstrap;
+use Turbine\Container\AwareTrait as ContainerAwareTrait;
+use Turbine\Container\StaticAwareTrait as StaticContainerAwareTrait;
+use Turbine\Config\AwareTrait as ConfigAwareTrait;
+use Turbine\Logger\AwareTrait as LoggerAwareTrait;
 use Whoops\Handler\CallbackHandler;
 use Whoops\Handler\PrettyPageHandler;
 use Whoops\Run;
@@ -22,20 +28,14 @@ use Whoops\Run;
 abstract class AbstractBootstrap implements BootstrapInterface
 {
 
-    /**
-     * @var array
-     */
-    private $config;
+    use ConfigAwareTrait;
+    use ContainerAwareTrait, StaticContainerAwareTrait {
+        StaticContainerAwareTrait::getContainer insteadof ContainerAwareTrait;
+    }
 
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    use LoggerAwareTrait {
+        LoggerAwareTrait::getLogger as getPsrLogger;
+    }
 
     /**
      * @var string
@@ -47,10 +47,11 @@ abstract class AbstractBootstrap implements BootstrapInterface
      */
     private $environment = self::ENVIRONMENT;
 
-    public function __construct($rootPath, ContainerInterface $container)
+    public function __construct($rootPath, ContainerInterface $container, ClassLoader $autoloader)
     {
         $this->setup($rootPath)
             ->setContainer($container)
+            ->initContainer()
             ->initLogger()
             ->initErrorHandler()
             ->initEnvironment();
@@ -62,8 +63,6 @@ abstract class AbstractBootstrap implements BootstrapInterface
      */
     protected function setup($rootPath)
     {
-        error_reporting(E_ALL);
-        umask(0);
         /* PHP version validation */
         if (version_compare(phpversion(), '5.5.0', '<') === TRUE) {
             echo 'Turbine CMS supports PHP 5.5.0 or later.';
@@ -80,12 +79,11 @@ abstract class AbstractBootstrap implements BootstrapInterface
      */
     protected function initLogger()
     {
-        if($this->getContainer()->has(LoggerInterface::class)){
+        if ($this->getContainer()->has(LoggerInterface::class)) {
             $this->getContainer()->get(LoggerInterface::class);
-        }else{
+        } else {
             $this->setLogger(new Logger('system'));
         }
-
 
         return $this;
     }
@@ -116,49 +114,26 @@ abstract class AbstractBootstrap implements BootstrapInterface
      */
     protected function initEnvironment()
     {
+        /**
+         * initialize all environment vars and make publish them to php env (getenv, $_ENV)
+         * @see https://github.com/vlucas/phpdotenv
+         */
         $dotenv = new Dotenv($this->getRootPath());
         $dotenv->load();
 
-        $environment = getenv('TURBINE_ENVIRONMENT');
+        $environment = getenv(self::ENVIRONMENT_NAME);
         $this->setEnvironment(!$environment ? $this->getEnvironment() : $environment);
 
         return $this;
     }
 
     /**
-     * @return array
+     * Initialize container and facades. Container instance is used static by FacadeFactory::getContainer
+     * @return $this
      */
-    public function getConfig()
+    protected function initContainer()
     {
-        return $this->config;
-    }
-
-    /**
-     * @param array $config
-     * @return $this|AbstractBootstrap
-     */
-    public function setConfig($config)
-    {
-        $this->config = $config;
-
-        return $this;
-    }
-
-    /**
-     * @return ContainerInterface
-     */
-    public function getContainer()
-    {
-        return $this->container;
-    }
-
-    /**
-     * @param ContainerInterface $container
-     * @return $this|AbstractBootstrap
-     */
-    public function setContainer($container)
-    {
-        $this->container = $container;
+        FacadeFactory::setContainer($this->getContainer());
 
         return $this;
     }
@@ -183,22 +158,10 @@ abstract class AbstractBootstrap implements BootstrapInterface
     }
 
     /**
-     * @return Logger
+     * @return LoggerInterface|Logger
      */
-    public function getLogger()
-    {
-        return $this->logger;
-    }
-
-    /**
-     * @param Logger $logger
-     * @return $this|AbstractBootstrap
-     */
-    public function setLogger($logger)
-    {
-        $this->logger = $logger;
-
-        return $this;
+    public function getLogger(){
+        return $this->getPsrLogger();
     }
 
     /**

@@ -13,10 +13,13 @@
 namespace Turbine\Application;
 
 
+use Interop\Container\ContainerInterface;
+
 interface BootstrapInterface
 {
 
     const ENVIRONMENT = 'default';
+    const ENVIRONMENT_NAME = 'TURBINE_ENVIRONMENT';
 
     /**
      * @return string
@@ -27,5 +30,15 @@ interface BootstrapInterface
      * @return array
      */
     public function getConfig();
+
+    /**
+     * @return ContainerInterface
+     */
+    public function getContainer();
+
+    /**
+     * @return string
+     */
+    public function getRootPath();
 
 }

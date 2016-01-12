@@ -21,37 +21,46 @@ use League\Route\RouteCollection;
 use League\Route\RouteCollectionInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Whoops\Example\Exception;
+use Zend\Diactoros\ServerRequest;
 
 class MvcStrategy implements StrategyInterface
 {
-
-    protected function setupDependencies(KernelInterface $kernel){
-        $container = $kernel->getContainer();
-
-        if(!$container->has(RouteCollectionInterface::class)){
-            $container->add(RouteCollectionInterface::class, RouteCollection::class);
-        }
-    }
 
     /**
      * @param KernelInterface $kernel
      * @param RequestInterface $request
      * @param ResponseInterface $response
      * @return ResponseInterface
+     * @throws \Exception
      */
     public function dispatch(KernelInterface $kernel, RequestInterface $request, ResponseInterface $response)
     {
-        $this->setupDependencies($kernel);
-        $this->setupRoutes($kernel);
 
-
-    }
-
-    protected function setupRoutes(KernelInterface $kernel)
-    {
-        $router = $kernel->getContainer()->get(RouteCollectionInterface::class);
-        if($router instanceof RouteCollectionInterface){
-            //map config['routes']
+        $routerId = RouteCollectionInterface::class;
+        if (!$kernel->getContainer()->has($routerId)) {
+            throw new \Exception('Unable to find Router!');
         }
+
+        $router = $kernel->getContainer()->get($routerId);
+
+        if (!($router instanceof RouteCollectionInterface)) {
+            throw new \InvalidArgumentException('Invalid router! Expect instance of ' . $routerId . '.');
+        }
+
+        if (isset($config['routes'])) {
+
+            foreach ($config['routes'] as $route) {
+                $router->map($route['methods'], $route['path'], $route['handler']);
+            }
+        }
+
+        if($request instanceof ServerRequestInterface && ($router instanceof RouteCollection || method_exists($router, 'dispatch'))){
+            return $router->dispatch($request, $response);
+        }
+
+        throw new \Exception('Unable to dispatch router');
+
     }
 }

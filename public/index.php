@@ -13,13 +13,16 @@
 use Turbine\Application\Http\Bootstrap as Bootstrap;
 use Turbine\Application\Http\Foundation as Application;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+$autoloader = require_once __DIR__ . '/../vendor/autoload.php';
 
 #ini_set('display_errors', 1);
+error_reporting(E_ALL);
+umask(0);
 
-$rooPath = realpath(__DIR__ . '/..');
+$rootPath = realpath(__DIR__ . '/..');
+
 $bootstrap = new Bootstrap(
-    $rooPath, new \League\Container\Container(), new \Turbine\Resources($rooPath . '/res')
+    $rootPath, new \League\Container\Container(), $autoloader, new \Turbine\Resources($rootPath . '/res')
 );
 $bootstrap
     ->createApplication(new Application)

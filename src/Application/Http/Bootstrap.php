@@ -13,6 +13,7 @@
 namespace Turbine\Application\Http;
 
 use Blast\Application\Kernel\KernelInterface;
+use Composer\Autoload\ClassLoader;
 use League\Container\Container;
 use Psr\Log\LoggerInterface;
 use Turbine\Application\AbstractBootstrap;
@@ -52,9 +53,9 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
      * @param Container $container
      * @param Resources $resources
      */
-    public function __construct($rootPath, Container $container, Resources $resources)
+    public function __construct($rootPath, Container $container, ClassLoader $autoloader, Resources $resources)
     {
-        parent::__construct($rootPath, $container);
+        parent::__construct($rootPath, $container, $autoloader);
 
         $this
             ->setResources($resources)
@@ -68,10 +69,10 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
      */
     protected function initHttp()
     {
-        $psr7Factory = new DiactorosFactory();
+        $factory = new DiactorosFactory();
         $this
-            ->setRequest($psr7Factory->createRequest(Request::createFromGlobals()))
-            ->setResponse($psr7Factory->createResponse(new Response()));
+            ->setRequest($factory->createRequest(Request::createFromGlobals()))
+            ->setResponse($factory->createResponse(new Response()));
 
         return $this;
     }
