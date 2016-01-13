@@ -1,5 +1,6 @@
-# turbine-cms
-Powerfull cms
+# Turbine Platform
+
+Powerful platform to build awesome software!
 
 ## Configuration
 
@@ -14,14 +15,19 @@ The default node is defined within `/app/res/config/nodes.json` and is defined a
 ```json
 {
   "default": {
-    "nodes": {
-      "default": {
-        "type": "url",
-        "match": ".+",
-        "priority": "last",
-        "description": "Is valid for every given domain and path and act as wildcard. This will load at the end when nothing has been matched",
-        "config": "{{root_path}}/{{node_id}}/{{environment}}"
-      }
+    "http": {
+      "type": "url",
+      "pattern": ".+",
+      "priority": "last",
+      "description": "Default node HTTP-Application",
+      "config": "/config/{{environment}}/{{node_id}}.json"
+    },
+    "cli": {
+      "type": "cli",
+      "pattern": ".+",
+      "priority": "last",
+      "description": "Default node for CLI-Application",
+      "config": "/config/{{environment}}/{{node_id}}.json"
     }
   }
 }
@@ -47,9 +53,9 @@ The type is taking am url or url part and matches against match option
 - `url`: valid url __http:// example.com /my/path ?param=value__
 - `cli`: valid cli environment
 
-##### `match`
+##### `pattern`
 
-Valid regex matched against value received from type. Defualt is `.+`
+Valid regex pattern matched against value received from type. Defualt is `.+`
 
 ##### `priority`
 
@@ -80,7 +86,7 @@ Defines path to documentation. You could also access following parameters with `
     "nodes": {
       "<node_id>": {
         "type": "<url_path, url_host, url_query, url, cli>",
-        "match": "<regex, not for cli>",
+        "pattern": "<regex, not for cli>",
         "priority": "<first, 0 ... n, last>",
         "description": "<some text>",
         "config": "path/to/config/file.php"
