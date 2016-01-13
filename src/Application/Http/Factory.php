@@ -14,6 +14,7 @@
 namespace Turbine\Application\Http;
 
 use Blast\Application\Kernel\KernelInterface;
+use Blast\Application\Strategy\StrategyInterface;
 use Turbine\Application\Http\Foundation as Application;
 use Turbine\Application\Strategy\MvcStrategy;
 
@@ -46,16 +47,22 @@ class Factory
     }
 
     /**
+     * Create a new apllication from scratch
      * @param Application $application
      * @return Application
      */
     public function createApplication(Application $application)
     {
         $bootstrap = $this->getBootstrap();
-        $application
-            ->setContainer($bootstrap->getContainer())
-            ->setConfig($bootstrap->getConfig())
-            ->setStrategy(new MvcStrategy());
+        if($application->getContainer() === null){
+            $application->setContainer($bootstrap->getContainer());
+        }
+        if($application->getConfig() === null){
+            $application->setConfig($bootstrap->getConfig());
+        }
+        if($application->getStrategy() === null){
+            $application->setStrategy($application->getContainer()->has(StrategyInterface::class) ? $application->getContainer()->get(StrategyInterface::class) : new MvcStrategy());
+        }
 
         $bootstrap->addService(KernelInterface::class, $application);
 

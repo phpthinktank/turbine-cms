@@ -12,6 +12,7 @@
 
 namespace Turbine\Application\Http;
 
+use Blast\Application\Kernel\KernelInterface;
 use League\Container\Container;
 use Psr\Log\LoggerInterface;
 use Turbine\Application\AbstractBootstrap;
@@ -24,7 +25,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Turbine\Application\Http\Foundation as Application;
+use Turbine\Application\Http\Foundation;
 use Turbine\Config\Http\Initiator;
 
 class Bootstrap extends AbstractBootstrap implements BootstrapInterface
@@ -45,17 +46,6 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
      */
     private $resources;
 
-
-    /**
-     * Init bootstrap with bootlet
-     * @param Bootlet $bootlet
-     */
-    public function __construct(Bootlet $bootlet)
-    {
-        parent::__construct($bootlet);
-        $this->setResources($bootlet->getResources());
-    }
-
     /**
      * @return Bootstrap
      */
@@ -63,8 +53,8 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
     {
         $factory = new DiactorosFactory();
         $this
-            ->setRequest($factory->createRequest(Request::createFromGlobals()))
-            ->setResponse($factory->createResponse(new Response()));
+            ->setRequest($this->getContainer()->has(ServerRequestInterface::class) ? $this->getContainer()->get(ServerRequestInterface::class) : $factory->createRequest(Request::createFromGlobals()))
+            ->setResponse($this->getContainer()->has(ResponseInterface::class) ? $this->getContainer()->get(ResponseInterface::class) : $factory->createResponse(new Response()));
 
         return $this;
     }
@@ -226,22 +216,22 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
     /**
      * Convenient boot loader
      * @param $rootPath
-     * @param Foundation $application
-     * @param Bootlet $bootlet
+     * @param Foundation|string $application
      */
-    public static function create($rootPath, Foundation $application = null, Bootlet $bootlet = null)
+    public static function create($rootPath, $application = null)
     {
         $rootPath = realpath($rootPath);
         $loader = require_once $rootPath . '/vendor/autoload.php';
-        $bootstrap = new Bootstrap(
-            $bootlet !== null ?
-                $bootlet :
-                (new Bootlet())
-                    ->setRootPath($rootPath)
-                    ->setResources(new Resources($rootPath . '/res'))
-                    ->setLoader($loader));
-        $bootstrap->boot()
-            ->createApplication($application !== null ? $application : new Application)
+        $bootstrap = new Bootstrap($rootPath);
+        $factory = $bootstrap
+            ->setRootPath($rootPath)
+            ->setResources(new Resources($rootPath . '/res'))
+            ->setLoader($loader)
+            ->boot();
+        $factory->createApplication(
+            $application instanceof KernelInterface || $bootstrap->getContainer()->has($application) ?
+                $bootstrap->getContainer()->get($application) :
+                new Foundation())
             ->dispatch($bootstrap->getRequest(), $bootstrap->getResponse());
     }
 

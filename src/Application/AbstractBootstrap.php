@@ -13,6 +13,7 @@ use Blast\Facades\FacadeFactory;
 use Composer\Autoload\ClassLoader;
 use Dotenv\Dotenv;
 use Interop\Container\ContainerInterface;
+use League\Container\Container;
 use League\Event\Emitter;
 use League\Event\EmitterInterface;
 use Monolog\Handler\StreamHandler;
@@ -59,11 +60,11 @@ abstract class AbstractBootstrap implements BootstrapInterface
      */
     private $environment = self::ENVIRONMENT;
 
-    public function __construct(AbstractBootlet $bootlet)
+    public function __construct($rootPath)
     {
-        $this->setup($bootlet->getRootPath())
-            ->setContainer($bootlet->getContainer())
-            ->setEmitter($bootlet->getEmitter());
+        $this
+            ->init()
+            ->setRootPath($rootPath);;
     }
 
     public function boot()
@@ -72,14 +73,14 @@ abstract class AbstractBootstrap implements BootstrapInterface
             ->initContainer()
             ->initLogger()
             ->initErrorHandler()
-            ->initEnvironment();
+            ->initEnvironment()
+            ->initEmitter();
     }
 
     /**
-     * @param $rootPath
-     * @return AbstractBootstrap
+     * @return $this|AbstractBootstrap
      */
-    protected function setup($rootPath)
+    protected function init()
     {
         /* PHP version validation */
         if (version_compare(phpversion(), '5.5.0', '<') === TRUE) {
@@ -87,27 +88,21 @@ abstract class AbstractBootstrap implements BootstrapInterface
             exit(1);
         }
 
-        $this->setRootPath($rootPath);
-
         return $this;
     }
 
     /**
-     * @return AbstractBootstrap
+     * @return $this|AbstractBootstrap
      */
     protected function initLogger()
     {
-        if ($this->getContainer()->has(LoggerInterface::class)) {
-            $this->getContainer()->get(LoggerInterface::class);
-        } else {
-            $this->setLogger(new Logger('system'));
-        }
+        $this->setLogger($this->getContainer()->has(LoggerInterface::class) ? $this->getContainer()->get(LoggerInterface::class) : new Logger('system'));
 
         return $this;
     }
 
     /**
-     * @return Bootstrap
+     * @return $this|AbstractBootstrap
      */
     protected function initErrorHandler()
     {
@@ -151,7 +146,20 @@ abstract class AbstractBootstrap implements BootstrapInterface
      */
     protected function initContainer()
     {
-        FacadeFactory::setContainer($this->getContainer());
+        if (!(FacadeFactory::getContainer() instanceof ContainerInterface)) {
+            FacadeFactory::setContainer($this->getContainer() instanceof ContainerInterface ? $this->getContainer() : new Container());
+        }
+
+        return $this;
+    }
+
+    /**
+     * Initialize container and facades. Container instance is used static by FacadeFactory::getContainer
+     * @return $this
+     */
+    protected function initEmitter()
+    {
+        $this->setEmitter($this->getContainer()->has(EmitterInterface::class) ? $this->getContainer()->get(EmitterInterface::class) : new Emitter());
 
         return $this;
     }
@@ -203,10 +211,13 @@ abstract class AbstractBootstrap implements BootstrapInterface
 
     /**
      * @param ClassLoader $loader
+     * @return $this
      */
     public function setLoader($loader)
     {
         $this->loader = $loader;
+
+        return $this;
     }
 
     /**
