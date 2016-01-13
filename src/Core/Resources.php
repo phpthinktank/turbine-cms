@@ -10,7 +10,7 @@
 * Time: 16:12
 */
 
-namespace Turbine;
+namespace Turbine\Core;
 
 
 use Blast\Config\Factory;

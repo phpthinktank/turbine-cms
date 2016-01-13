@@ -16,7 +16,7 @@ namespace Turbine\Config;
 use Application\HttpBootstrap;
 use Blast\Config\Factory;
 use Blast\Config\Locator;
-use Turbine\Resources;
+use Turbine\Core\Resources;
 
 interface InitiatorInterface
 {

@@ -14,18 +14,18 @@ namespace Turbine\Application\Http;
 
 use Blast\Application\Kernel\KernelInterface;
 use League\Container\Container;
+use League\Event\EmitterInterface;
 use Psr\Log\LoggerInterface;
 use Turbine\Application\AbstractBootstrap;
 use Turbine\Application\BootstrapInterface;
 use Turbine\Application\Event\ConfigureEvent;
 use Turbine\Application\Events\BootConfigEvent;
-use Turbine\Resources;
+use Turbine\Core\Resources;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Turbine\Application\Http\Foundation;
 use Turbine\Config\Http\Initiator;
 
 class Bootstrap extends AbstractBootstrap implements BootstrapInterface
@@ -155,6 +155,10 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
         return $this->getContainer()->add($alias, $concrete, $share);
     }
 
+    /**
+     *
+     * @return $this
+     */
     protected function initServices()
     {
         $container = $this->getContainer();
@@ -163,6 +167,7 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
         $this->addService(BootstrapInterface::class, $this);
         $this->addService(Resources::class, $this->getResources());
         $this->addService(LoggerInterface::class, $this->getLogger());
+        $this->addService(EmitterInterface::class, $this->getEmitter());
 
         if (isset($config['providers'])) {
             $providers = $config['providers'];
@@ -188,6 +193,13 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
 
     }
 
+    /**
+     * Configure bootstrap.
+     *
+     * Manipulate configuration with "configure" event
+     *
+     * @return $this
+     */
     protected function configure()
     {
         $config = $this->getConfig();
@@ -200,6 +212,10 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
         return $this;
     }
 
+    /**
+     * initialize bootstrap and return factory
+     * @return Factory
+     */
     public function boot()
     {
         parent::boot();

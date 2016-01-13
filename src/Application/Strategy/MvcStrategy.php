@@ -15,15 +15,12 @@ namespace Turbine\Application\Strategy;
 
 use Blast\Application\Kernel\KernelInterface;
 use Blast\Application\Strategy\StrategyInterface;
-use Interop\Container\ContainerInterface;
-use League\Container\Container;
 use League\Route\RouteCollection;
 use League\Route\RouteCollectionInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Whoops\Example\Exception;
-use Zend\Diactoros\ServerRequest;
+use Turbine\Core\Exception\InvalidClassException;
 
 class MvcStrategy implements StrategyInterface
 {
@@ -39,18 +36,13 @@ class MvcStrategy implements StrategyInterface
     {
 
         $routerId = RouteCollectionInterface::class;
-        if (!$kernel->getContainer()->has($routerId)) {
-            throw new \Exception('Unable to find Router!');
-        }
-
         $router = $kernel->getContainer()->get($routerId);
 
         if (!($router instanceof RouteCollectionInterface)) {
-            throw new \InvalidArgumentException('Invalid router! Expect instance of ' . $routerId . '.');
+            throw new InvalidClassException($router, $routerId);
         }
 
         if (isset($config['routes'])) {
-
             foreach ($config['routes'] as $route) {
                 $router->map($route['methods'], $route['path'], $route['handler']);
             }
