@@ -67,16 +67,6 @@ abstract class AbstractBootstrap implements BootstrapInterface
             ->setRootPath($rootPath);;
     }
 
-    public function boot()
-    {
-        $this
-            ->initContainer()
-            ->initLogger()
-            ->initErrorHandler()
-            ->initEnvironment()
-            ->initEmitter();
-    }
-
     /**
      * @return $this|AbstractBootstrap
      */
@@ -246,5 +236,7 @@ abstract class AbstractBootstrap implements BootstrapInterface
 
         return $this;
     }
+
+    abstract public function boot();
 
 }

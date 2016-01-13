@@ -18,8 +18,8 @@ use League\Event\EmitterInterface;
 use Psr\Log\LoggerInterface;
 use Turbine\Application\AbstractBootstrap;
 use Turbine\Application\BootstrapInterface;
+use Turbine\Application\Event\BootEvent;
 use Turbine\Application\Event\ConfigureEvent;
-use Turbine\Application\Events\BootConfigEvent;
 use Turbine\System\Resources;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -47,6 +47,13 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
     private $resources;
 
     /**
+     * This file is relative to resources folder, configured in resources and per default /res.
+     *
+     * @var string
+     */
+    private $nodeFile = '/config/nodes.json';
+
+    /**
      * @return Bootstrap
      */
     protected function initHttp()
@@ -64,16 +71,64 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
      */
     protected function initConfig()
     {
-        $event = new BootConfigEvent();
-        $event->setNodeFile('/config/nodes.json');
-        $this->getEmitter()->emit($event);
 
-        $initiator = new Initiator($event->getNodeFile(), $this->getEnvironment(), $this->getResources());
+        $initiator = new Initiator($this->getNodeFile(), $this->getEnvironment(), $this->getResources());
         $initiator->setRequest($this->getRequest());
 
         $this->setConfig($initiator->create());
 
         return $this;
+    }
+
+    /**
+     * League Container implementation
+     *
+     * @param $alias
+     * @param null $concrete
+     * @param bool $share
+     * @return $this|\League\Container\Definition\DefinitionInterface|mixed
+     */
+    public function addService($alias, $concrete = null, $share = false)
+    {
+        return $this->getContainer()->add($alias, $concrete, $share);
+    }
+
+    /**
+     *
+     * @return $this
+     */
+    protected function initServices()
+    {
+        $container = $this->getContainer();
+        $config = $this->getConfig();
+
+        $this->addService(BootstrapInterface::class, $this);
+        $this->addService(Resources::class, $this->getResources());
+        $this->addService(LoggerInterface::class, $this->getLogger());
+        $this->addService(EmitterInterface::class, $this->getEmitter());
+
+        if (isset($config['providers'])) {
+            $providers = $config['providers'];
+
+            if (is_array($providers)) {
+                foreach ($providers as $provider) {
+                    $container->addServiceProvider($provider);
+                }
+            }
+        }
+
+        if (isset($config['services'])) {
+            $services = $config['services'];
+
+            if (is_array($services)) {
+                foreach ($services as $alias => $service) {
+                    $container->add($alias, $service);
+                }
+            }
+        }
+
+        return $this;
+
     }
 
     /**
@@ -84,6 +139,21 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
         return parent::getContainer();
     }
 
+    /**
+     * @return string
+     */
+    public function getNodeFile()
+    {
+        return $this->nodeFile;
+    }
+
+    /**
+     * @param string $nodeFile
+     */
+    public function setNodeFile($nodeFile)
+    {
+        $this->nodeFile = $nodeFile;
+    }
 
     /**
      * @return ServerRequestInterface
@@ -143,57 +213,6 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
     }
 
     /**
-     * League Container implementation
-     *
-     * @param $alias
-     * @param null $concrete
-     * @param bool $share
-     * @return $this|\League\Container\Definition\DefinitionInterface|mixed
-     */
-    public function addService($alias, $concrete = null, $share = false)
-    {
-        return $this->getContainer()->add($alias, $concrete, $share);
-    }
-
-    /**
-     *
-     * @return $this
-     */
-    protected function initServices()
-    {
-        $container = $this->getContainer();
-        $config = $this->getConfig();
-
-        $this->addService(BootstrapInterface::class, $this);
-        $this->addService(Resources::class, $this->getResources());
-        $this->addService(LoggerInterface::class, $this->getLogger());
-        $this->addService(EmitterInterface::class, $this->getEmitter());
-
-        if (isset($config['providers'])) {
-            $providers = $config['providers'];
-
-            if (is_array($providers)) {
-                foreach ($providers as $provider) {
-                    $container->addServiceProvider($provider);
-                }
-            }
-        }
-
-        if (isset($config['services'])) {
-            $services = $config['services'];
-
-            if (is_array($services)) {
-                foreach ($services as $alias => $service) {
-                    $container->add($alias, $service);
-                }
-            }
-        }
-
-        return $this;
-
-    }
-
-    /**
      * Configure bootstrap.
      *
      * Manipulate configuration with "configure" event
@@ -221,12 +240,21 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
         parent::boot();
 
         $this
+            ->initContainer()
+            ->initLogger()
+            ->initErrorHandler()
+            ->initEnvironment()
+            ->initEmitter()
             ->initHttp()
             ->initConfig()
             ->initServices()
             ->configure();
 
-        return new Factory($this);
+        $event = new BootEvent();
+        $event->setBootstrap($this);
+        $this->getEmitter()->emit($event);
+
+        return new Factory($event->getBootstrap());
     }
 
     /**

@@ -14,15 +14,15 @@
 namespace Turbine\Router\Strategy;
 
 
-use Blast\Facades\FacadeFactory;
 use League\Event\Emitter;
 use League\Event\EmitterInterface;
 use League\Route\Route;
 use League\Route\Strategy\AbstractStrategy;
-use League\Route\Strategy\ParamStrategy;
 use League\Route\Strategy\StrategyInterface;
 use Turbine\Application\Events\ControllerEvent;
 use Turbine\Application\ControllerInterface;
+use Turbine\Application\Events\ResponseEvent;
+use Turbine\System\Exception\RuntimeException;
 
 class ControllerActionStrategy extends AbstractStrategy implements StrategyInterface
 {
@@ -30,7 +30,8 @@ class ControllerActionStrategy extends AbstractStrategy implements StrategyInter
     /**
      * @return EmitterInterface
      */
-    public function getEventEmitter(){
+    public function getEventEmitter()
+    {
         return $this->getContainer()->has(EmitterInterface::class) ? $this->getContainer()->get(EmitterInterface::class) : new Emitter();
     }
 
@@ -48,11 +49,12 @@ class ControllerActionStrategy extends AbstractStrategy implements StrategyInter
      * @param \League\Route\Route|null $route
      *
      * @return \Psr\Http\Message\ResponseInterface
+     *
+     * @throws RuntimeException
      */
     public function dispatch(callable $controller, array $vars, Route $route = null)
     {
         $action = null;
-        $emitter = $this->getEventEmitter();
 
         if (is_string($controller) && strpos($controller, '::') !== false) {
             list($controller, $action) = explode('::', $controller);
@@ -65,16 +67,59 @@ class ControllerActionStrategy extends AbstractStrategy implements StrategyInter
                 ->setRequest($this->getRequest())
                 ->setResponse($this->getResponse())
                 ->setRoute($route);
-
-            $event = new ControllerEvent;
-            $event->setController($controller);
-            $emitter->emit($event);
         }
 
-        $delegate = new ParamStrategy();
-        $response = $delegate->dispatch([$controller, $action], $vars, $route);
+        $controllerEvent = $this->onDispatchController($controller, $action);
 
-        return $response;
+        if (!method_exists($this->getContainer(), 'call')) {
+            throw new RuntimeException(
+                sprintf(
+                    'To use the parameter strategy, the container must implement the (::call) method. (%s) does not.',
+                    get_class($this->getContainer())
+                )
+            );
+        }
 
+        $response = $this->getContainer()->call([$controllerEvent->getController(), $controllerEvent->getAction()], $vars);
+
+        //emit router.dispatch.response event
+        $responseEvent = $this->onDispatchResponse($controller, $response, $action);
+
+
+        return $this->determineResponse($responseEvent->getResponse());
+
+    }
+
+    /**
+     * @param callable $controller
+     * @param $action
+     * @return ControllerEvent
+     */
+    protected function onDispatchController(callable $controller, $action)
+    {
+        $controllerEvent = new ControllerEvent;
+        $this->getEventEmitter()->emit(
+            $controllerEvent
+                ->setController($controller)
+                ->setAction($action)
+        );
+        return $controllerEvent;
+    }
+
+    /**
+     * @param callable $controller
+     * @param $response
+     * @param $action
+     * @return ResponseEvent
+     */
+    protected function onDispatchResponse(callable $controller, $response, $action)
+    {
+        $responseEvent = new ResponseEvent();
+        $this->getEventEmitter()->emit(
+            $responseEvent
+                ->setResponse($response),
+            $controller, $action
+        );
+        return $responseEvent;
     }
 }

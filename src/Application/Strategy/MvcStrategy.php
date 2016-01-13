@@ -21,6 +21,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Turbine\System\Exception\InvalidClassException;
+use Turbine\System\Exception\RuntimeException;
 
 class MvcStrategy implements StrategyInterface
 {
@@ -52,7 +53,7 @@ class MvcStrategy implements StrategyInterface
             return $router->dispatch($request, $response);
         }
 
-        throw new \Exception('Unable to dispatch router');
+        throw new RuntimeException('Unable to dispatch router');
 
     }
 }

@@ -20,9 +20,33 @@ use Turbine\Application\ControllerInterface;
 class ControllerEvent extends AbstractEvent
 {
     /**
-     * @var ControllerInterface
+     * @var string
+     */
+    private $action;
+
+    /**
+     * @var ControllerInterface|callable
      */
     private $controller;
+
+    /**
+     * @return string
+     */
+    public function getAction()
+    {
+        return $this->action;
+    }
+
+    /**
+     * @param string $action
+     * @return $this
+     */
+    public function setAction($action)
+    {
+        $this->action = $action;
+
+        return $this;
+    }
 
     /**
      * @return ControllerInterface
@@ -33,8 +57,8 @@ class ControllerEvent extends AbstractEvent
     }
 
     /**
-     * @param ControllerInterface $controller
-     * @return ControllerEvent
+     * @param ControllerInterface|callable $controller
+     * @return $this
      */
     public function setController($controller)
     {
@@ -44,7 +68,7 @@ class ControllerEvent extends AbstractEvent
 
     public function getName()
     {
-        return 'dispatch.controller';
+        return 'router.dispatch.controller';
     }
 
 }

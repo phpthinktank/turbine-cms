@@ -15,56 +15,36 @@ namespace Turbine\Application\Http;
 
 use Blast\Application\Kernel\KernelInterface;
 use Blast\Application\Strategy\StrategyInterface;
-use Turbine\Application\Http\Foundation as Application;
+use Turbine\Application\AbstractFactory;
+use Turbine\Application\Http\Foundation;
 use Turbine\Application\Strategy\MvcStrategy;
 
-class Factory
+class Factory extends AbstractFactory
 {
-    /**
-     * @var Bootstrap
-     */
-    private $bootstrap;
-
-    public function __construct(Bootstrap $bootstrap)
-    {
-        $this->setBootstrap($bootstrap);
-    }
-
-    /**
-     * @return Bootstrap
-     */
-    public function getBootstrap()
-    {
-        return $this->bootstrap;
-    }
-
-    /**
-     * @param Bootstrap $bootstrap
-     */
-    public function setBootstrap($bootstrap)
-    {
-        $this->bootstrap = $bootstrap;
-    }
 
     /**
      * Create a new apllication from scratch
-     * @param Application $application
-     * @return Application
+     * @param KernelInterface $application
+     * @return KernelInterface
      */
-    public function createApplication(Application $application)
+    public function createApplication(KernelInterface $application)
     {
         $bootstrap = $this->getBootstrap();
-        if($application->getContainer() === null){
+        if ($application->getContainer() === null) {
             $application->setContainer($bootstrap->getContainer());
         }
-        if($application->getConfig() === null){
+
+        if ($application->getConfig() === null) {
             $application->setConfig($bootstrap->getConfig());
         }
-        if($application->getStrategy() === null){
+
+        if ($application->getStrategy() === null) {
             $application->setStrategy($application->getContainer()->has(StrategyInterface::class) ? $application->getContainer()->get(StrategyInterface::class) : new MvcStrategy());
         }
 
-        $bootstrap->addService(KernelInterface::class, $application);
+        if ($bootstrap instanceof Bootstrap) {
+            $bootstrap->addService(KernelInterface::class, $application);
+        }
 
         return $application;
     }

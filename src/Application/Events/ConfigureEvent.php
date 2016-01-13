@@ -41,6 +41,6 @@ class ConfigureEvent extends AbstractEvent
 
     public function getName()
     {
-        return 'configure';
+        return 'application.configure';
     }
 }
