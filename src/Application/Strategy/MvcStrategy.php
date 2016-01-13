@@ -20,7 +20,7 @@ use League\Route\RouteCollectionInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Turbine\Core\Exception\InvalidClassException;
+use Turbine\System\Exception\InvalidClassException;
 
 class MvcStrategy implements StrategyInterface
 {

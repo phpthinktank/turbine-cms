@@ -23,7 +23,7 @@ use Turbine\Application\Http\Bootstrap;
 use Turbine\Container\ContainerAwareTrait as ContainerAwareTrait;
 use Turbine\Container\StaticAwareTrait as StaticContainerAwareTrait;
 use Turbine\Config\AwareTrait as ConfigAwareTrait;
-use Turbine\Logger\AwareTrait as LoggerAwareTrait;
+use Turbine\Logger\LoggerAwareTrait as LoggerAwareTrait;
 use Whoops\Handler\CallbackHandler;
 use Whoops\Handler\PrettyPageHandler;
 use Whoops\Run;

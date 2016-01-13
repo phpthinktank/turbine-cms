@@ -21,8 +21,8 @@ use League\Route\Route;
 use League\Route\Strategy\AbstractStrategy;
 use League\Route\Strategy\ParamStrategy;
 use League\Route\Strategy\StrategyInterface;
-use Turbine\Controller\ControllerEvent;
-use Turbine\Controller\ControllerInterface;
+use Turbine\Application\Events\ControllerEvent;
+use Turbine\Application\ControllerInterface;
 
 class ControllerActionStrategy extends AbstractStrategy implements StrategyInterface
 {

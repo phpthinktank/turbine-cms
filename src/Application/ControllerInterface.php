@@ -11,7 +11,7 @@
  *
  */
 
-namespace Turbine\Controller;
+namespace Turbine\Application;
 
 
 use Interop\Container\ContainerInterface;

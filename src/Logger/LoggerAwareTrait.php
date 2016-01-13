@@ -16,7 +16,7 @@ namespace Turbine\Logger;
 
 use Psr\Log\LoggerInterface;
 
-trait AwareTrait
+trait LoggerAwareTrait
 {
     /**
      * @var LoggerInterface

@@ -11,7 +11,7 @@
  *
  */
 
-namespace Turbine\Core\Exception;
+namespace Turbine\System\Exception;
 
 class ClassNotFoundException extends RuntimeException
 {
@@ -30,7 +30,7 @@ class ClassNotFoundException extends RuntimeException
         }
         $this->classname = $classname;
 
-        parent::__construct(sprintf('Unable to find %s', $classname));
+        parent::__construct(sprintf('Unable to find %s', $classname), 501);
     }
 
     public function getClassname()

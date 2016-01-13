@@ -11,10 +11,11 @@
  *
  */
 
-namespace Turbine\Controller;
+namespace Turbine\Application\Events;
 
 
 use League\Event\AbstractEvent;
+use Turbine\Application\ControllerInterface;
 
 class ControllerEvent extends AbstractEvent
 {

@@ -20,7 +20,7 @@ use Turbine\Application\AbstractBootstrap;
 use Turbine\Application\BootstrapInterface;
 use Turbine\Application\Event\ConfigureEvent;
 use Turbine\Application\Events\BootConfigEvent;
-use Turbine\Core\Resources;
+use Turbine\System\Resources;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;

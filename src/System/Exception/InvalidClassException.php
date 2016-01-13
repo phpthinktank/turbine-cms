@@ -11,7 +11,7 @@
  *
  */
 
-namespace Turbine\Core\Exception;
+namespace Turbine\System\Exception;
 
 class InvalidClassException extends RuntimeException
 {
@@ -45,7 +45,7 @@ class InvalidClassException extends RuntimeException
 
         $this->expectedClassname = $expected;
 
-        parent::__construct(sprintf('Invalid class %s! Instance of %s expected!', $actual, $expected));
+        parent::__construct(sprintf('Invalid class %s! Instance of %s expected!', $actual, $expected), 502);
     }
 
     /**

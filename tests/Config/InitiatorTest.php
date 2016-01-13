@@ -15,7 +15,7 @@ namespace Turbine\Tests\Config;
 use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Turbine\Config\Http\Initiator as HttpInitiator;
-use Turbine\Core\Resources;
+use Turbine\System\Resources;
 
 class InitiatorTest extends \PHPUnit_Framework_TestCase
 {

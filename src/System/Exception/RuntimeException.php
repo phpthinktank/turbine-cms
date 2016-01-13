@@ -11,12 +11,12 @@
  *
  */
 
-namespace Turbine\Core;
+namespace Turbine\System\Exception;
 
 
-use Exception as BaseException;
+use RuntimeException as BaseRuntimeException;
 
-class Exception extends BaseException
+class RuntimeException extends BaseRuntimeException
 {
 
 }
