@@ -2,96 +2,53 @@
 
 Powerful platform to build awesome software!
 
-## Configuration
+[![Latest Version on Packagist][ico-version]][link-packagist]
+[![Software License][ico-license]](LICENSE.md)
+[![Build Status][ico-travis]][link-travis]
+[![Total Downloads][ico-downloads]][link-downloads]
+[![Coverage Status](https://img.shields.io/coveralls/phpthinktank/turbine-platform/master.svg?style=flat-square)](https://coveralls.io/github/phpthinktank/turbine-platform?branch=master)
 
-### Nodes
+## [Documentation](docs/00_Setup.md)
 
-Nodes are the heart of Turbine CMS. Nodes are necessary to provide multi-domain-support and also environment control. Within each node you could define a specific config location.
+## Further development
 
-#### Defaults
+Please visit our [milestones](https://github.com/phpthinktank/blast-orm/milestones)
 
-The default node is defined within `/app/res/config/nodes.json` and is defined as follows.
+## Change log
 
-```json
-{
-  "default": {
-    "http": {
-      "type": "url",
-      "pattern": ".+",
-      "priority": "last",
-      "description": "Default node HTTP-Application",
-      "config": "/config/{{environment}}/{{node_id}}.json"
-    },
-    "cli": {
-      "type": "cli",
-      "pattern": ".+",
-      "priority": "last",
-      "description": "Default node for CLI-Application",
-      "config": "/config/{{environment}}/{{node_id}}.json"
-    }
-  }
-}
+Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
+
+## Testing
+
+``` bash
+$ composer test
 ```
 
-#### Options
+## Contributing
 
-##### `environment`
+Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
-Target environment received via getenv and defined in .env in projectroot. Turbine CMS is using [phpdotenv by vlucas](https://github.com/vlucas/phpdotenv). If no environment defined, the environment is defined as `default`. Defined environment inherit `default` environment.
+## Security
 
-##### `node_id`
+If you discover any security related issues, please email :author_email instead of using the issue tracker.
 
-Unique node identifier. Nodes inherit values from defined node with same `node_id` of `default`environment.
+## Credits
 
-##### `type`
+- [Marco Bunge][link-author]
+- [All contributors][link-contributors]
 
-The type is taking am url or url part and matches against match option
+## License
 
-- `url_path`: valid url path http:// example.com __/my/path__ ?param=value
-- `url_host`: valid url host __http:// example.com__ /my/path ?param=value
-- `url_query`: valid url query http:// example.com /my/path ? __param=value__
-- `url`: valid url __http:// example.com /my/path ?param=value__
-- `cli`: valid cli environment
+The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
 
-##### `pattern`
+[ico-version]: https://img.shields.io/packagist/v/turbine/platform.svg?style=flat-square
+[ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
+[ico-travis]: https://img.shields.io/travis/phpthinktank/turbine-platform/master.svg?style=flat-square
+[ico-downloads]: https://img.shields.io/packagist/dt/turbine/platform.svg?style=flat-square
 
-Valid regex pattern matched against value received from type. Defualt is `.+`
+[link-packagist]: https://packagist.org/packages/turbine/platform
+[link-travis]: https://travis-ci.org/phpthinktank/turbine-platform
+[link-downloads]: https://packagist.org/packages/turbine/platform
+[link-author]: https://github.com/mbunge
+[link-contributors]: ../../contributors
 
-##### `priority`
-
-Set order for node stack. 
-
-- `first` is set node on top of stack
-- `last` at the end of stack
-- `0 ... n` declare postion to valid unsigned number.
-
-##### `description` *(optional)*
-
-Short description for node
-
-##### `config`
-
-Defines path to documentation. You could also access following parameters with `{{param}}`
-
-###### Available params
-
-- `node_id` of current node
-- `environment` of current node
-
-#### Synopsis
-
-```json
-{
-  "<environment>": {
-    "nodes": {
-      "<node_id>": {
-        "type": "<url_path, url_host, url_query, url, cli>",
-        "pattern": "<regex, not for cli>",
-        "priority": "<first, 0 ... n, last>",
-        "description": "<some text>",
-        "config": "path/to/config/file.php"
-      }
-    }
-  }
-}
-```

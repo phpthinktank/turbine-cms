@@ -19,7 +19,6 @@ use League\Event\EmitterInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
-use Turbine\Application\Http\Bootstrap;
 use Turbine\Container\ContainerAwareTrait as ContainerAwareTrait;
 use Turbine\Container\StaticAwareTrait as StaticContainerAwareTrait;
 use Turbine\Config\AwareTrait as ConfigAwareTrait;

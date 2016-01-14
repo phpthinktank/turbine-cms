@@ -10,12 +10,8 @@
 * Time: 14:23
 */
 
-use Turbine\Application\Http\Bootstrap as Bootstrap;
-
-
-
 #ini_set('display_errors', 1);
 error_reporting(E_ALL);
 umask(0);
 
-Bootstrap::create(dirname(__DIR__));
+Turbine\Application\Http\Bootstrap::create(dirname(__DIR__));

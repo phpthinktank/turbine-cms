@@ -264,14 +264,23 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
      */
     public static function create($rootPath, $application = null)
     {
+        //validate rootpath
         $rootPath = realpath($rootPath);
+
+        //create loader
         $loader = require_once $rootPath . '/vendor/autoload.php';
+
+        //create bootstrap
         $bootstrap = new Bootstrap($rootPath);
+
+        //setup application factory
         $factory = $bootstrap
             ->setRootPath($rootPath)
             ->setResources(new Resources($rootPath . '/res'))
             ->setLoader($loader)
             ->boot();
+
+        //create a new application
         $factory->createApplication(
             $application instanceof KernelInterface || $bootstrap->getContainer()->has($application) ?
                 $bootstrap->getContainer()->get($application) :

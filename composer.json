@@ -1,5 +1,5 @@
 {
-  "name": "Turbine CMS",
+  "name": "turbine/platform",
   "description": "Fast, flexible, framework agnostic CMS",
   "minimum-stability": "dev",
   "license": "MIT",
