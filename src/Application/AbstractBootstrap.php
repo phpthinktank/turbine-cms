@@ -21,7 +21,7 @@ use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Turbine\Container\ContainerAwareTrait;
 use Turbine\Container\ContainerStaticAwareTrait;
-use Turbine\Config\AwareTrait as ConfigAwareTrait;
+use Turbine\Config\ConfigAwareTrait as ConfigAwareTrait;
 use Turbine\Logger\LoggerAwareTrait as LoggerAwareTrait;
 use Whoops\Handler\CallbackHandler;
 use Whoops\Handler\PrettyPageHandler;
