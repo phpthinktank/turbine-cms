@@ -7,13 +7,15 @@
 * file that was distributed with this source code.
 *
 * Date: 30.12.2015
-* Time: 14:26
+* Time: 14:25
 */
 
-namespace Turbine\Tests;
+namespace Turbine\Application\Http;
 
 
-class ApplicationTest extends \PHPUnit_Framework_TestCase
+use Blast\Application\Kernel\Foundation as Kernel;
+
+class Foundation extends Kernel
 {
 
 }
