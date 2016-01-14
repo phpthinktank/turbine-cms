@@ -10,10 +10,6 @@ Powerful platform to build awesome software!
 
 ## [Documentation](docs/00_Setup.md)
 
-## Further development
-
-Please visit our [milestones](https://github.com/phpthinktank/blast-orm/milestones)
-
 ## Change log
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
