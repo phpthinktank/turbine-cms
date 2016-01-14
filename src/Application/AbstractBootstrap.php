@@ -19,8 +19,8 @@ use League\Event\EmitterInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
-use Turbine\Container\ContainerAwareTrait as ContainerAwareTrait;
-use Turbine\Container\StaticAwareTrait as StaticContainerAwareTrait;
+use Turbine\Container\ContainerAwareTrait;
+use Turbine\Container\ContainerStaticAwareTrait;
 use Turbine\Config\AwareTrait as ConfigAwareTrait;
 use Turbine\Logger\LoggerAwareTrait as LoggerAwareTrait;
 use Whoops\Handler\CallbackHandler;
@@ -31,8 +31,8 @@ abstract class AbstractBootstrap implements BootstrapInterface
 {
 
     use ConfigAwareTrait;
-    use ContainerAwareTrait, StaticContainerAwareTrait {
-        StaticContainerAwareTrait::getContainer insteadof ContainerAwareTrait;
+    use ContainerAwareTrait, ContainerStaticAwareTrait {
+        ContainerStaticAwareTrait::getContainer insteadof ContainerAwareTrait;
     }
 
     use LoggerAwareTrait {
