@@ -18,7 +18,7 @@ use Blast\Config\Factory;
 use Blast\Config\Locator;
 use Turbine\System\Resources;
 
-abstract class AbstractInitiator implements InitiatorInterface
+abstract class AbstractConfigurator implements InitiatorInterface
 {
 
     /**
@@ -77,7 +77,7 @@ abstract class AbstractInitiator implements InitiatorInterface
 
     /**
      * @param Factory $factory
-     * @return AbstractInitiator
+     * @return AbstractConfigurator
      */
     protected function setFactory(Factory $factory)
     {
@@ -96,7 +96,7 @@ abstract class AbstractInitiator implements InitiatorInterface
 
     /**
      * @param Locator $locator
-     * @return AbstractInitiator
+     * @return AbstractConfigurator
      */
     protected function setLocator(Locator $locator)
     {
@@ -115,7 +115,7 @@ abstract class AbstractInitiator implements InitiatorInterface
 
     /**
      * @param array $nodes
-     * @return AbstractInitiator
+     * @return AbstractConfigurator
      */
     public function setNodes($nodes)
     {
@@ -134,7 +134,7 @@ abstract class AbstractInitiator implements InitiatorInterface
 
     /**
      * @param mixed $environment
-     * @return AbstractInitiator
+     * @return AbstractConfigurator
      */
     public function setEnvironment($environment)
     {
