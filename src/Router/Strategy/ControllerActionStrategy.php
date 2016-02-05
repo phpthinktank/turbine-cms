@@ -20,8 +20,8 @@ use League\Route\Route;
 use League\Route\Strategy\AbstractStrategy;
 use League\Route\Strategy\StrategyInterface;
 use Turbine\Application\Events\ControllerEvent;
-use Turbine\Application\ControllerInterface;
 use Turbine\Application\Events\ResponseEvent;
+use Turbine\Router\Controller\ControllerInterface;
 use Turbine\System\Exception\RuntimeException;
 
 class ControllerActionStrategy extends AbstractStrategy implements StrategyInterface
