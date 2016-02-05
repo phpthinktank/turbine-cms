@@ -35,6 +35,6 @@ interface InitiatorInterface
      *
      * @return array
      */
-    public function create();
+    public function configure();
 
 }

@@ -210,6 +210,6 @@ abstract class AbstractConfigurator implements InitiatorInterface
         return $nodes;
     }
 
-    abstract function create();
+    abstract function configure();
 
 }

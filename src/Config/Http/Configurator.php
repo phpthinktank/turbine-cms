@@ -48,7 +48,7 @@ class Configurator extends AbstractConfigurator
      * Load nodes
      * @return array
      */
-    public function create()
+    public function configure()
     {
         $nodes = $this->getNodes();
         $request = $this->getRequest();

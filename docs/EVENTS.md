@@ -16,8 +16,8 @@ Manipulate bootstrap after initialisation.
 
 ### `router.dispatch.controller`
 
-Executed before controller dispatches
+Do something before controller dispatches
 
-### `router.dispatch.controller`
+### `router.dispatch.response`
 
-Executed before response dispatches
+Do something before response dispatches

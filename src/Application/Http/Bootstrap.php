@@ -75,7 +75,7 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
         $initiator = new Configurator($this->getNodeFile(), $this->getEnvironment(), $this->getResources());
         $initiator->setRequest($this->getRequest());
 
-        $this->setConfig($initiator->create());
+        $this->setConfig($initiator->configure());
 
         return $this;
     }
