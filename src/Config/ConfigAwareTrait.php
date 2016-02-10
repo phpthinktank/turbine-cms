@@ -14,7 +14,7 @@
 namespace Turbine\Config;
 
 
-trait AwareTrait
+trait ConfigAwareTrait
 {
 
     /**

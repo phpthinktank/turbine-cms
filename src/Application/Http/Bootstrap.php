@@ -26,7 +26,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Turbine\Config\Http\Initiator;
+use Turbine\Config\Http\Configurator;
 
 class Bootstrap extends AbstractBootstrap implements BootstrapInterface
 {
@@ -72,10 +72,10 @@ class Bootstrap extends AbstractBootstrap implements BootstrapInterface
     protected function initConfig()
     {
 
-        $initiator = new Initiator($this->getNodeFile(), $this->getEnvironment(), $this->getResources());
+        $initiator = new Configurator($this->getNodeFile(), $this->getEnvironment(), $this->getResources());
         $initiator->setRequest($this->getRequest());
 
-        $this->setConfig($initiator->create());
+        $this->setConfig($initiator->configure());
 
         return $this;
     }

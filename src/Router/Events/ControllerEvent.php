@@ -15,7 +15,7 @@ namespace Turbine\Application\Events;
 
 
 use League\Event\AbstractEvent;
-use Turbine\Application\ControllerInterface;
+use Turbine\Router\Controller\ControllerInterface;
 
 class ControllerEvent extends AbstractEvent
 {

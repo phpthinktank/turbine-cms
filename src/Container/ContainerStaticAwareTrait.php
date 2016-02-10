@@ -17,7 +17,7 @@ namespace Turbine\Container;
 use Blast\Facades\FacadeFactory;
 use Interop\Container\ContainerInterface;
 
-trait StaticAwareTrait
+trait ContainerStaticAwareTrait
 {
     /**
      * @return ContainerInterface

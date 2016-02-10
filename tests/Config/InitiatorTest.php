@@ -14,7 +14,7 @@ namespace Turbine\Tests\Config;
 
 use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
 use Symfony\Component\HttpFoundation\Request;
-use Turbine\Config\Http\Initiator as HttpInitiator;
+use Turbine\Config\Http\Configurator as HttpInitiator;
 use Turbine\System\Resources;
 
 class InitiatorTest extends \PHPUnit_Framework_TestCase
@@ -27,7 +27,7 @@ class InitiatorTest extends \PHPUnit_Framework_TestCase
         $resources = new Resources(__DIR__ . '/../res');
         $initiator = new HttpInitiator('/config/nodes.json', 'default', $resources);
         $initiator->setRequest($request);
-        $data = $initiator->create();
+        $data = $initiator->configure();
 
         $this->assertInternalType('array', $data);
         $this->assertArrayHasKey('name', $data);

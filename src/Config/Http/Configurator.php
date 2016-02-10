@@ -16,9 +16,11 @@ namespace Turbine\Config\Http;
 use League\Route\Http\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
-use Turbine\Config\AbstractInitiator;
+use Turbine\Config\AbstractConfigurator;
+use Turbine\Config\UnableToDetermineNodesException;
+use Turbine\Config\UnknownNodeTypeException;
 
-class Initiator extends AbstractInitiator
+class Configurator extends AbstractConfigurator
 {
 
     /**
@@ -46,7 +48,7 @@ class Initiator extends AbstractInitiator
      * Load nodes
      * @return array
      */
-    public function create()
+    public function configure()
     {
         $nodes = $this->getNodes();
         $request = $this->getRequest();

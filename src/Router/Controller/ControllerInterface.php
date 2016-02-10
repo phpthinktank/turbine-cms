@@ -11,7 +11,7 @@
  *
  */
 
-namespace Turbine\Application;
+namespace Turbine\Router\Controller;
 
 
 use Interop\Container\ContainerInterface;
@@ -31,5 +31,7 @@ interface ControllerInterface extends RequestAwareInterface, ResponseAwareInterf
      * @return $this
      */
     public function setRoute(Route $route);
+
+    public function handle();
 
 }
